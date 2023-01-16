@@ -37,6 +37,7 @@
 
         function DDA_Line(Xs,Ys,Xe,Ye){
             var ans = [];
+            var color = 'green';
             var dx = Xe-Xs, dy = Ye-Ys;
             var step = Math.max(Math.abs(dx),Math.abs(dy));
             var Xinc = dx/step, Yinc = dy/step
@@ -45,7 +46,7 @@
             if(Math.abs(m)<=1){
                 while(x<Xe){
                     ans.push([Math.round(x),Math.round(y)]);
-                    setPixel(x,y,'red');
+                    setPixel(x,y,color);
                     x+=Xinc;
                     y+=Yinc;
                 }
@@ -53,7 +54,7 @@
             else{
                 while(y<Ye){
                     ans.push([Math.round(x),Math.round(y)]);
-                    setPixel(Math.round(x),Math.round(y),'red');
+                    setPixel(Math.round(x),Math.round(y),color);
                     x+=Xinc;
                     y+=Yinc;
                 }
@@ -66,6 +67,7 @@
 
         function Bresenham_Line(Xs,Ys,Xe,Ye){
             var ans = []; 
+            var color = 'yellow';
             var dx = Xe-Xs, dy = Ye-Ys;
             var m = dy/dx; 
             if(m<0 || m>1){
@@ -78,7 +80,7 @@
 
             while(x<Xe){
                 ans.push([Math.round(x),Math.round(y)]);
-                setPixel(x,y,'green');
+                setPixel(Math.round(x),Math.round(y),color);
                 x++;
                 if (p<0) p += 2 * dy;
                 else{
@@ -92,7 +94,7 @@
         }
 
 
-        function BresenhamCircle(h,k,r, color, size = 1){
+        function BresenhamCircle(h,k,r, color = 'cyan', size = 1){
             var x = 0, y = r;
             var p = 3 - 2 * r;
             while(x<=y){
@@ -116,7 +118,7 @@
         }
 
 
-        function MidPointCircle(h,k,r, color, size=1){
+        function MidPointCircle(h,k,r, color = 'magenta', size=1){
             var x = 0, y = r;
             var p = 1 - r;
             while(x<=y){
@@ -184,14 +186,14 @@
             }
         }
 
-        // Red line
-        // DDA_Line(10,20,50,250);
+        // // Red line
+        DDA_Line(10,20,50,250);
         // // Green Line
-        // Bresenham_Line(50,220,120,420)
+        Bresenham_Line(40,420,160,430)
         // // Blue circle
-        // BresenhamCircle(250,250,200);
-        // Cyan circle
-        // MidPointCircle(250,250,100);
+        BresenhamCircle(250,250,200);
+        // // Cyan circle
+        MidPointCircle(250,250,100);
 
         // var bal = getPixel(0,0);
         // for(i=0;i<bal.length;i++)
@@ -199,8 +201,8 @@
         // console.log(getPixel(25, 25));
         // BoundaryFill(10,10,[0,255,255,255],[255,0,255,255]);
         // BoundaryFill(250,250,[0,255,255,255],[0,0,255,255]);
-        Circle(250, 250, 100, [255, 0, 0, 255], 2, [255, 0, 0, 255]);
-        BoundaryFill(1,1,[255, 0,0,255],[10,255, 50,255]);
+        // Circle(250, 250, 100, [255, 0, 0, 255], 2, [255, 0, 0, 255]);
+        // BoundaryFill(1,1,[255, 0,0,255],[10,255, 50,255]);
         // Circle(250, 250, 100, [255, 0, 0, 255], 3);
     </script>
 </body>
