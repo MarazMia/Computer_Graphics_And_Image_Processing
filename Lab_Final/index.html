@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="window" width="500" height="500" style="border:10px solid #000000; background-color: blue"></canvas>
+    <script>
+
+        var height = 500, width = 500;
+        canvas = document.querySelector('#window');
+        context = canvas.getContext('2d', {alpha: false});
+        function equalsCheck(a, b) {
+            for(var i = a.length - 1; i >= 0; i--) {
+                if(a[i] != b[i]) return 1;
+            }
+            return 0;
+            // return JSON.stringify(a) !== JSON.stringify(b);
+        }
+        function arrayToColor(f) {
+            return 'rgba('+f[0]+','+f[1]+','+f[2]+','+f[3]+')';
+        }
+        function setPixel(x,y,color,size=1){
+            context.fillStyle = color;
+            // context.fillRect(Math.round(x),Math.round(y),1,1);  
+            context.fillRect(x,y,size,size); 
+        }
+
+        function getPixel(x,y){
+            var rgb = context.getImageData(x,y,1,1).data;
+            return Array.from(rgb);
+            // return rgb;
+        }
+
+        function DDA_Line(Xs,Ys,Xe,Ye){
+            var ans = [];
+            var dx = Xe-Xs, dy = Ye-Ys;
+            var step = Math.max(Math.abs(dx),Math.abs(dy));
+            var Xinc = dx/step, Yinc = dy/step
+            var m = dy/dx;
+            var x = Xs, y = Ys; 
+            if(Math.abs(m)<=1){
+                while(x<Xe){
+                    ans.push([Math.round(x),Math.round(y)]);
+                    setPixel(x,y,'red');
+                    x+=Xinc;
+                    y+=Yinc;
+                }
+            }
+            else{
+                while(y<Ye){
+                    ans.push([Math.round(x),Math.round(y)]);
+                    setPixel(Math.round(x),Math.round(y),'red');
+                    x+=Xinc;
+                    y+=Yinc;
+                }
+            }
+
+            for(item in ans)
+            console.log('DDA Line Output ' + ans[item]);
+        }
+
+
+        function Bresenham_Line(Xs,Ys,Xe,Ye){
+            var ans = []; 
+            var dx = Xe-Xs, dy = Ye-Ys;
+            var m = dy/dx; 
+            if(m<0 || m>1){
+                console.log(m + ' unappplicable');
+                return;
+            }
+            
+            var x = Xs, y = Ys;
+            var p = 2 * dy - dx;
+
+            while(x<Xe){
+                ans.push([Math.round(x),Math.round(y)]);
+                setPixel(x,y,'green');
+                x++;
+                if (p<0) p += 2 * dy;
+                else{
+                    p += 2 * (dy - dx);
+                    y++;
+                }
+            }
+
+            for(item in ans)
+            console.log('Bresenham Line Output ' + ans[item]);
+        }
+
+
+        function BresenhamCircle(h,k,r, color, size = 1){
+            var x = 0, y = r;
+            var p = 3 - 2 * r;
+            while(x<=y){
+                setPixel(x+h,y+k,color, size);
+                setPixel(x+h,-y+k,color, size);
+                setPixel(-x+h,y+k,color, size);
+                setPixel(-x+h,-y+k,color, size);
+                setPixel(y+h,x+k,color, size);
+                setPixel(y+h,-x+k,color, size);
+                setPixel(-y+h,x+k,color, size);
+                setPixel(-y+h,-x+k,color, size);
+
+                if(p<0) p += 4 * x + 6;
+
+                else{
+                    p += 4 * (x-y) + 10;
+                    y--;
+                }
+                x++;
+            }
+        }
+
+
+        function MidPointCircle(h,k,r, color, size=1){
+            var x = 0, y = r;
+            var p = 1 - r;
+            while(x<=y){
+                setPixel(x+h,y+k,color, size);
+                setPixel(x+h,-y+k,color, size);
+                setPixel(-x+h,y+k,color, size);
+                setPixel(-x+h,-y+k,color, size);
+                setPixel(y+h,x+k,color, size);
+                setPixel(y+h,-x+k,color, size);
+                setPixel(-y+h,x+k,color, size);
+                setPixel(-y+h,-x+k,color, size);
+
+                if(p<0) p += 2 * x + 3;
+
+                else{
+                    p += 2 * (x-y) + 2;
+                    y--;
+                }
+                x++;
+            }
+        }
+
+        // // b and f are in rgb
+        // function BoundaryFill(x,y,b,f){
+        //     if(x >= width || y >= height || x < 0 || y < 0) return;
+        //     if(equalsCheck(getPixel(x,y) , f)) {
+        //         // console.log(getPixel(x,y))
+        //         setPixel(x,y,'rgba('+f[0]+','+f[1]+','+f[2]+',255)');
+        //         for(var i = -1; i <= 1; i++) {
+        //             for(var j = -1; j <= 1; j++) {
+        //                 if(i == 0 && j == 0) continue;
+        //                 BoundaryFill(x + i, y + j, b, f);
+        //             }
+        //         }
+        //     }
+        // }
+        function Circle(x, y, radius, border_color, size = 1, filled_color = null) {
+            // MidPointCircle(x, y, radius, arrayToColor(border_color), size);
+            BresenhamCircle(x, y, radius, arrayToColor(border_color), size);
+            if(filled_color) {
+                BoundaryFill(x, y, border_color,filled_color);
+            }
+        }
+        function BoundaryFill(x,y,b,f){
+            var Stack = [];
+            Stack.push([x, y]);
+            while(Stack.length !== 0) {
+                var u = Stack.at(-1); Stack.pop();
+                var ux = u[0], uy = u[1];
+                // console.log(ux, uy, getPixel(ux,uy), f, equalsCheck(getPixel(ux,uy) , f));
+                for(var i = -1; i <= 1; i++) {
+                    for(var j = -1; j <= 1; j++) {
+                        if(i == 0 && j == 0) continue;
+                        var nx = ux + i, ny = uy + j;
+                        if(nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                            // console.log(nx, ny, equalsCheck(getPixel(nx,ny) , b), getPixel(nx, ny), b);
+                            if(equalsCheck(getPixel(nx,ny) , f) && equalsCheck(getPixel(nx,ny) , b)) {
+                                // console.log('dhukse');
+                                setPixel(nx,ny,'rgba('+f[0]+','+f[1]+','+f[2]+',255)');
+                                Stack.push([nx, ny]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Red line
+        // DDA_Line(10,20,50,250);
+        // // Green Line
+        // Bresenham_Line(50,220,120,420)
+        // // Blue circle
+        // BresenhamCircle(250,250,200);
+        // Cyan circle
+        // MidPointCircle(250,250,100);
+
+        // var bal = getPixel(0,0);
+        // for(i=0;i<bal.length;i++)
+        // console.log(bal[i]);
+        // console.log(getPixel(25, 25));
+        // BoundaryFill(10,10,[0,255,255,255],[255,0,255,255]);
+        // BoundaryFill(250,250,[0,255,255,255],[0,0,255,255]);
+        Circle(250, 250, 100, [255, 0, 0, 255], 2, [255, 0, 0, 255]);
+        BoundaryFill(1,1,[255, 0,0,255],[10,255, 50,255]);
+        // Circle(250, 250, 100, [255, 0, 0, 255], 3);
+    </script>
+</body>
+</html>
